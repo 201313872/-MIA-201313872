@@ -5,20 +5,62 @@
 #include <stdlib.h>
 #include <ctype.h>
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////CONCATENADOR////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////// ESTRUCTURA ////////////////////////////////////////////////////////////////
 typedef struct Lex{
     char texto[25];
     int token;
-}Lexemas, Lex;
+}Lex;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////FUNCION TOKEN //////////////////////////////////////////////////////////////
+
+int DetToken(char l[]){
+
+if(strcasecmp(l,"mkdisk")==0){
+return 0;
+}else if(strcasecmp(l,"rmdisk")==0){
+return 1;
+}else if(strcasecmp(l,"fdisk")==0){
+return 2;
+}else if(strcasecmp(l,"mount")==0){
+return 3;
+}else if(strcasecmp(l,"unmount")==0){
+return 4;
+}else if(strcasecmp(l,"exec")){
+return 5;
+}else if(strcasecmp(l,"-size::")==0){
+return 6;
+}else if(strcasecmp(l,"-path::")==0){
+return 7;
+}else if(strcasecmp(l,"-name::")==0){
+return 8;
+}else if(strcasecmp(l,"+unit::")==0){
+return 9;
+}else if(strcasecmp(l,"+type::")==0){
+return 10;
+}else if(strcasecmp(l,"+fit::")==0){
+return 11;
+}else if(strcasecmp(l,"+delete::")==0){
+return 12;
+}else if(strcasecmp(l,"+add::")==0){
+return 13;
+}else{
+return 0;
+}
+
+
+
+}
 
 /////////////////////////////////////////////////////ANALIZADOR///////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Lex Lexemas[20];
 int AT(){   // ANALIZADOR DE TEXTO
 /*VARIABLES*/
 char linea[100]; //almacena la linea
 int tokens[20]; //almacena tokens obtenidos
 //char lexemas[20]; // almacena los lexemas obtenidos
-Lex Lexemas[20];
+//Lex Lexemas[20];
 char lexema[25];
 char lexemaCL[25];
 
@@ -45,23 +87,27 @@ while(bandera == 0/*pos <=99*/){
             caracter=linea[pos];
             estado = 1;
         }else if(isdigit(caracter)){ // es numero?
-            //concatenar numero
+            lexema[posLex]=caracter;
             pos+=1;
+            posLex+=1;
             caracter=linea[pos];
             estado = 2;
         }else if(caracter == '-'){ // es signo menos?
-            //concatenar simbolo
+            lexema[posLex]=caracter;
             pos+=1;
+            posLex+=1;
             caracter=linea[pos];
             estado = 3;
         }else if(caracter == '+'){ // es signo mas?
-            //concatenar simbolo +
+            lexema[posLex]=caracter;
             pos+=1;
+            posLex+=1;
             caracter=linea[pos];
             estado = 6;
         }else if(caracter == '"'){ // son comillas?
-            //concatenar simbolo "
+            lexema[posLex]=caracter;
             pos+=1;
+            posLex+=1;
             caracter=linea[pos];
             estado = 9;
         }else if(caracter == '\\'){
@@ -69,8 +115,9 @@ while(bandera == 0/*pos <=99*/){
             //resetear contador
             //
         }else if(caracter == '#'){
-            //concatenar simbolo $
+            lexema[posLex]=caracter;
             pos+=1;
+            posLex+=1;
             caracter=linea[pos];
             estado = 12;
         }else if(caracter == ' '){
@@ -95,25 +142,11 @@ while(bandera == 0/*pos <=99*/){
             estado = 1;
         }else{
             printf("RECONOCIO PALABRA \n");
-            printf("lexema: %s \n",lexema);
+            strcpy(Lexemas[posTL].texto,lexema);
+            Lexemas[posTL].token=DetToken(lexema);
+            posTL+=1;
             posLex=0;
-            if(strcasecmp(lexema,"holas")==0){
-            strcpy(Lexemas[posTL].texto,lexema);
-            Lexemas[posTL].token=1;
-            printf("lexema: %s \n",Lexemas[posTL].texto);
-            printf("token: %i \n",Lexemas[posTL].token);
-            posTL+=1;
-            strcpy(lexema,"");
-           // printf("es igual \n");
-            }else if(strcasecmp(lexema,"como")==0){
-            strcpy(Lexemas[posTL].texto,lexema);
-            Lexemas[posTL].token=1;
-            printf("lexema: %s \n",Lexemas[posTL].texto);
-            printf("token: %i \n",Lexemas[posTL].token);
-            posTL+=1;
-            strcpy(lexema,"");
-           // printf("es igual \n");
-            }
+            //limpiar lexema
             estado = 0;
         }
         break; // Fin reconocimiento palabras
@@ -121,25 +154,35 @@ while(bandera == 0/*pos <=99*/){
         case 2: // Estado 2 para numeros
         if(isdigit(caracter)){
             //concatenar numer
+            lexema[posLex]=caracter;
             pos+=1;
+            posLex+=1;
             caracter = linea[pos];
             estado = 2;
         }else{
             //almacenar token y lexema
             //aumentar contador TL
             printf("RECONOCIO NUMERO \n");
+            strcpy(Lexemas[posTL].texto,lexema);
+            Lexemas[posTL].token=14;
+            posTL+=1;
+            posLex=0;
+            //limpiar lexema
             estado = 0;
         }
         break; // Fin reconocimiento Numeros
 
         case 3: // Estado 3 para parametros Obligatoros
         if(isalpha(caracter)){
-            //concatenar caracter
+            lexema[posLex]=caracter;
             pos+=1;
+            posLex+=1;
             caracter = linea[pos];
             estado = 3;
         }else if(caracter == ':'){
+            lexema[posLex]=caracter;
             pos+=1;
+            posLex+=1;
             caracter = linea[pos];
             estado = 4;
         }else{
@@ -150,7 +193,9 @@ while(bandera == 0/*pos <=99*/){
 
         case 4: // Estado 4  parametros Obligatorios
         if(caracter == ':'){
+            lexema[posLex]=caracter;
             pos+=1;
+            posLex+=1;
             caracter = linea[pos];
             estado = 5;
         }
@@ -159,17 +204,24 @@ while(bandera == 0/*pos <=99*/){
         case 5: // Estado 5 cierre parametro obligatorio
             //almacenar token y lexema parametro obligatorio
             printf("RECONOCIO PARAMETRO OBLIGATORIO \n");
+            strcpy(Lexemas[posTL].texto,lexema);
+            Lexemas[posTL].token=DetToken(lexema);
+            posTL+=1;
+            posLex=0;
             estado = 0;
         break; // Fin reconocimiento parametro Obligatorio;
 
         case 6: // Estado 6 para parametros Opcionales
         if(isalpha(caracter)){
-            //concatenar letra
+            lexema[posLex]=caracter;
             pos+=1;
+            posLex+=1;
             caracter = linea[pos];
             estado = 6;
         }else if(caracter == ':'){
+            lexema[posLex]=caracter;
             pos+=1;
+            posLex+=1;
             caracter = linea[pos];
             estado = 7;
         }else{
@@ -180,7 +232,9 @@ while(bandera == 0/*pos <=99*/){
 
         case 7: // Estado 7 parametros Opcionales
         if(caracter == ':'){
+            lexema[posLex]=caracter;
             pos+=1;
+            posLex+=1;
             caracter = linea[pos];
             estado = 8;
         }else{
@@ -192,17 +246,23 @@ while(bandera == 0/*pos <=99*/){
         case 8: // Estado 8 parametros Opcionales
             //almacenar token y lexema parametro opcional
             printf("RECONOCIO PARAMETRO OPCIONAL \n");
+            strcpy(Lexemas[posTL].texto,lexema);
+            Lexemas[posTL].token=DetToken(lexema);
+            posTL+=1;
+            posLex=0;
             estado = 0;
         break;
 
         case 9: // Estado 9 reconocimiento cadenas ""
         if(isalpha(caracter) || isdigit(caracter) || caracter == '/' || caracter == '.' || caracter == '_' || caracter == '-'){
-            //concatenar caracter
+            lexema[posLex]=caracter;
             pos+=1;
             caracter = linea[pos];
             estado = 9;
         }else if(caracter == '"'){
+            lexema[posLex]=caracter;
             pos+=1;
+            posLex+=1;
             caracter = linea[pos];
             estado = 10;
         }else{
@@ -215,6 +275,10 @@ while(bandera == 0/*pos <=99*/){
             //guardar token y lexema
             //aumentar contador TL
             printf("RECONOCIO CADENA \n");
+            strcpy(Lexemas[posTL].texto,lexema);
+            Lexemas[posTL].token=15;
+            posTL+=1;
+            posLex=0;
             estado = 0;
         break; // Fin reconocimiento Cadenas (phath o nombre)
 
@@ -224,8 +288,9 @@ while(bandera == 0/*pos <=99*/){
 
         case 12: //Estado 12 reconocimiento de Comentarios
         if(caracter != '\n'){
-          //concatenar comentario
+          lexema[posLex]=caracter;
           pos+=1;
+          posLex+=1;
           caracter = linea[pos];
           estado = 12;
         }else{
@@ -239,6 +304,10 @@ while(bandera == 0/*pos <=99*/){
             /* Se puede agregar metodo de ejecucion de parametros*/
             bandera = 1;
             printf("reconocio comentario \n");
+            strcpy(Lexemas[posTL].texto,lexema);
+            Lexemas[posTL].token=16;
+            posTL+=1;
+            posLex=0;
         break; // Fin de reconocimiento Comentarios
 
         case 14:  //estado de eliminacion de espacios y posibles tabs
@@ -250,7 +319,6 @@ while(bandera == 0/*pos <=99*/){
              // fin de linea
              bandera = 1;
             }else{
-            printf("regreso a estado 0 \n");
             estado = 0;
             }
             break;
@@ -274,6 +342,13 @@ int main()
 {
 int a=0;
 AT();
+int i = 0;
+
+for(i;i<4;i+=1){
+printf("lexema: %s \n",Lexemas[i].texto);
+printf("token: %i \n",Lexemas[i].token);
+}
+
 
 return 0;
 
