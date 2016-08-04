@@ -9,7 +9,9 @@
 typedef struct Lex{
     char texto[25];
     int token;
+    int numeroID;
 }Lex;
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////FUNCION TOKEN //////////////////////////////////////////////////////////////
@@ -55,13 +57,14 @@ return 0;
 /////////////////////////////////////////////////////ANALIZADOR///////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Lex Lexemas[20];
+char lexema[25];
 int AT(){   // ANALIZADOR DE TEXTO
 /*VARIABLES*/
 char linea[100]; //almacena la linea
 int tokens[20]; //almacena tokens obtenidos
 //char lexemas[20]; // almacena los lexemas obtenidos
 //Lex Lexemas[20];
-char lexema[25];
+//char lexema[25];
 char lexemaCL[25];
 
 char caracter; //almacena caracter temporal de la linea
@@ -146,7 +149,7 @@ while(bandera == 0/*pos <=99*/){
             Lexemas[posTL].token=DetToken(lexema);
             posTL+=1;
             posLex=0;
-            //limpiar lexema
+            LimpiarChar();
             estado = 0;
         }
         break; // Fin reconocimiento palabras
@@ -167,7 +170,7 @@ while(bandera == 0/*pos <=99*/){
             Lexemas[posTL].token=14;
             posTL+=1;
             posLex=0;
-            //limpiar lexema
+            LimpiarChar();
             estado = 0;
         }
         break; // Fin reconocimiento Numeros
@@ -191,6 +194,41 @@ while(bandera == 0/*pos <=99*/){
         }
         break; // Fin estado 3 parametro obligatorio
 
+        case 33: // case especial para IDs con numero
+        if(isdigit(caracter)){
+            lexema[posLex]=caracter;
+            pos+=1;
+            posLex+=1;
+            caracter = linea[pos];
+            estado = 33;
+        }else if(caracter == ':'){
+            //agregar concatenacion de ID's
+            pos+=1;
+            posLex+=1;
+            caracter = linea[pos];
+            estado = 34;
+        }else{
+            estado_anterior=33;
+            estado=15;
+        }
+        break;
+
+        case 34: // case de cierre de reonocimiento de IDs
+        if(caracter == ':'){
+            lexema[posLex]=caracter;
+           // Lexemas[posTL].texto=lexema;
+            Lexemas[posTL].token=17;
+            posTL+=1;
+            pos+=1;
+            posLex=0;
+            caracter = linea[pos];
+            estado=0;
+            //
+        }else{
+            estado=15;
+        }
+        break;
+
         case 4: // Estado 4  parametros Obligatorios
         if(caracter == ':'){
             lexema[posLex]=caracter;
@@ -209,6 +247,7 @@ while(bandera == 0/*pos <=99*/){
             posTL+=1;
             posLex=0;
             estado = 0;
+            LimpiarChar();
         break; // Fin reconocimiento parametro Obligatorio;
 
         case 6: // Estado 6 para parametros Opcionales
@@ -251,6 +290,7 @@ while(bandera == 0/*pos <=99*/){
             posTL+=1;
             posLex=0;
             estado = 0;
+            LimpiarChar();
         break;
 
         case 9: // Estado 9 reconocimiento cadenas ""
@@ -280,6 +320,7 @@ while(bandera == 0/*pos <=99*/){
             posTL+=1;
             posLex=0;
             estado = 0;
+            LimpiarChar();
         break; // Fin reconocimiento Cadenas (phath o nombre)
 
         case 11: // Estado aceptacion sigue en otra linea
@@ -308,6 +349,7 @@ while(bandera == 0/*pos <=99*/){
             Lexemas[posTL].token=16;
             posTL+=1;
             posLex=0;
+            LimpiarChar();
         break; // Fin de reconocimiento Comentarios
 
         case 14:  //estado de eliminacion de espacios y posibles tabs
@@ -332,6 +374,14 @@ while(bandera == 0/*pos <=99*/){
 
 }//fin switch
 } // fin while
+}
+
+void LimpiarChar(){
+int i=0;
+for(i;i<25;i+=1)
+if(lexema[i]!='\0'){
+ lexema[i]='\0';
+}
 }
 
 
