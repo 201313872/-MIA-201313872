@@ -19,7 +19,7 @@ typedef struct Lex{
 int DetToken(char l[]){
 
 if(strcasecmp(l,"mkdisk")==0){
-return 0;
+return 100;
 }else if(strcasecmp(l,"rmdisk")==0){
 return 1;
 }else if(strcasecmp(l,"fdisk")==0){
@@ -28,7 +28,7 @@ return 2;
 return 3;
 }else if(strcasecmp(l,"unmount")==0){
 return 4;
-}else if(strcasecmp(l,"exec")){
+}else if(strcasecmp(l,"exec")==0){
 return 5;
 }else if(strcasecmp(l,"-size::")==0){
 return 6;
@@ -54,7 +54,7 @@ return 0;
 
 }
 
-/////////////////////////////////////////////////////ANALIZADOR///////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////ANALIZADORES///////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Lex Lexemas[20];
 char lexema[25];
@@ -114,9 +114,10 @@ while(bandera == 0/*pos <=99*/){
             caracter=linea[pos];
             estado = 9;
         }else if(caracter == '\\'){
-            //concatenar siguiente liena a la linea
-            //resetear contador
-            //
+            char nextL[50];
+            fgets(nextL,50,stdin);
+            strcat(linea,nextL);
+            printf("nueva cadena: %s", linea);
         }else if(caracter == '#'){
             lexema[posLex]=caracter;
             pos+=1;
@@ -296,6 +297,7 @@ while(bandera == 0/*pos <=99*/){
         case 9: // Estado 9 reconocimiento cadenas ""
         if(isalpha(caracter) || isdigit(caracter) || caracter == '/' || caracter == '.' || caracter == '_' || caracter == '-'){
             lexema[posLex]=caracter;
+            posLex+=1;
             pos+=1;
             caracter = linea[pos];
             estado = 9;
@@ -376,6 +378,109 @@ while(bandera == 0/*pos <=99*/){
 } // fin while
 }
 
+void AS(Lex Tabla[]){
+if(Tabla[0].token==100){
+ CrearDisco(Lexemas);
+}else{
+//manejar error
+}
+} //llave AS
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////METODO CREAR DISCO /////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void CrearDisco(Lex Parametros[]){
+//char para alamcenar valores de los parametros del disco a crear
+char SizeDisco[25];
+char PathDisco[25];
+char NameDisco[25];
+char UnitDisco[25];
+//ints para validad que parametros han venido 0=NO 1=SI
+int SD=0;
+int PD=0;
+int ND=0;
+int UD=0;
+//int para posicion en la tabla de tokens/lexemas
+int posP=1;
+
+while(posP<20){
+printf("esta en el while \n");
+    if(Parametros[posP].token==0){
+    break;
+    }
+
+if(Parametros[posP].token==6){ //valida instruccion size
+    if(SD==0){
+    posP+=1;
+    strcpy(SizeDisco,Parametros[posP].texto);
+    posP+=1;
+    SD=1;
+    printf("reconocio tk 6 \n");
+    }else{
+    printf("el tamanio ya fue definido anteriormente \n");
+    }
+}else if(Parametros[posP].token==7){ //calida intruccion path
+    if(PD==0){
+    posP+=1;
+    strcpy(PathDisco,Parametros[posP].texto);
+    posP+=1;
+    PD=1;
+    printf("reconocio tk 7 \n");
+    }else{
+    printf("ya habia ingresado el path \n");
+    }
+}else if(Parametros[posP].token==8){ //calida intruccion name
+    if(ND==0){
+    posP+=1;
+    strcpy(NameDisco,Parametros[posP].texto);
+    posP+=1;
+    ND=1;
+    printf("reconocio tk 8 \n");
+    }else{
+    printf("ya habia ingresado el nombre del disco \n");
+    }
+}else if(Parametros[posP].token==9){ //calida intruccion unidad
+    if(UD==0){
+    posP+=1;
+    strcpy(UnitDisco,Parametros[posP].texto);
+    posP+=1;
+    UD=1;
+    printf("reconocio tk 9 \n");
+    }else{
+    printf("ya habia ingresado la unidid para el disco \n");
+    }
+}else{
+    printf("fin del analisis \n");
+    break;
+}
+
+}
+if(SD==1){
+    if(PD==1){
+        if(ND==1){
+        printf("El tamanio del disco es: %s \n",SizeDisco);
+        printf("El path del disco es: %s \n",PathDisco);
+        printf("El nombre del disco es: %s \n",NameDisco);
+        if(UD==1){
+        printf("La unidad es: %s \n",UnitDisco);
+        }else{
+        printf("La unidad quedara por defecto \n");
+            }
+        }
+    }
+}
+
+/*
+validar falta de algun parametro obligatorio o parametro incorrecto en caso de path o extension
+*/
+
+}//fin creacion disco
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////// METODO DE LIMPIEA /////////////////////////////////////////////////////////
+
 void LimpiarChar(){
 int i=0;
 for(i;i<25;i+=1)
@@ -391,14 +496,16 @@ if(lexema[i]!='\0'){
 int main()
 {
 int a=0;
-AT();
-int i = 0;
 
+AT();
+AS(Lexemas);
+int i = 0;
+/*
 for(i;i<4;i+=1){
 printf("lexema: %s \n",Lexemas[i].texto);
 printf("token: %i \n",Lexemas[i].token);
 }
-
+*/
 
 return 0;
 
