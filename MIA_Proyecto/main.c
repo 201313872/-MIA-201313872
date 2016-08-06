@@ -62,11 +62,7 @@ int AT(){   // ANALIZADOR DE TEXTO
 /*VARIABLES*/
 char linea[100]; //almacena la linea
 int tokens[20]; //almacena tokens obtenidos
-//char lexemas[20]; // almacena los lexemas obtenidos
-//Lex Lexemas[20];
-//char lexema[25];
 char lexemaCL[25];
-
 char caracter; //almacena caracter temporal de la linea
 int estado=0; // selector de estados
 int estado_anterior = 0; //registro de estado de error
@@ -164,8 +160,6 @@ while(bandera == 0/*pos <=99*/){
             caracter = linea[pos];
             estado = 2;
         }else{
-            //almacenar token y lexema
-            //aumentar contador TL
             printf("RECONOCIO NUMERO \n");
             strcpy(Lexemas[posTL].texto,lexema);
             Lexemas[posTL].token=14;
@@ -241,7 +235,6 @@ while(bandera == 0/*pos <=99*/){
         break; // Fin reconocimiento segundo :
 
         case 5: // Estado 5 cierre parametro obligatorio
-            //almacenar token y lexema parametro obligatorio
             printf("RECONOCIO PARAMETRO OBLIGATORIO \n");
             strcpy(Lexemas[posTL].texto,lexema);
             Lexemas[posTL].token=DetToken(lexema);
@@ -284,7 +277,6 @@ while(bandera == 0/*pos <=99*/){
         break; // fin de reconocimiento : parametro Opcional
 
         case 8: // Estado 8 parametros Opcionales
-            //almacenar token y lexema parametro opcional
             printf("RECONOCIO PARAMETRO OPCIONAL \n");
             strcpy(Lexemas[posTL].texto,lexema);
             Lexemas[posTL].token=DetToken(lexema);
@@ -314,8 +306,6 @@ while(bandera == 0/*pos <=99*/){
         break; // fin reconocimiento cadena
 
         case 10: // Estado 10 fin cadena
-            //guardar token y lexema
-            //aumentar contador TL
             printf("RECONOCIO CADENA \n");
             strcpy(Lexemas[posTL].texto,lexema);
             Lexemas[posTL].token=15;
@@ -342,8 +332,6 @@ while(bandera == 0/*pos <=99*/){
         break; // Fin reconicimiento Comentario
 
         case 13: // Estado 13 para Comentarios
-            //almacenar Token y Lexema
-            //aumnetar variable TL
             /* Se puede agregar metodo de ejecucion de parametros*/
             bandera = 1;
             printf("reconocio comentario \n");
@@ -378,9 +366,20 @@ while(bandera == 0/*pos <=99*/){
 } // fin while
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////METODO SELECTOR DE ACCION ///////////////////////////////////////////////////////
+
 void AS(Lex Tabla[]){
 if(Tabla[0].token==100){
  CrearDisco(Lexemas);
+}else if(Tabla[0].token==1){
+ RemoverDisco(Lexemas);
+}else if(Tabla[0].token==2){
+ ParticionarDisco(Lexemas);
+}else if(Tabla[0].token==1){
+ MontarDisco(Lexemas);
+}else if(Tabla[0].token==1){
+ DesmontarDisco(Lexemas);
 }else{
 //manejar error
 }
@@ -413,6 +412,7 @@ if(Parametros[posP].token==6){ //valida instruccion size
     if(SD==0){
     posP+=1;
     strcpy(SizeDisco,Parametros[posP].texto);
+    printf("El numero es %i\n",atoi(SizeDisco));
     posP+=1;
     SD=1;
     printf("reconocio tk 6 \n");
@@ -433,6 +433,11 @@ if(Parametros[posP].token==6){ //valida instruccion size
     if(ND==0){
     posP+=1;
     strcpy(NameDisco,Parametros[posP].texto);
+    if(strstr(NameDisco,".dsk")!=0){
+    printf("Si contiene la extension .dsk\n");
+    }else{
+    printf("No contiene la extension .dsk\n");
+    }
     posP+=1;
     ND=1;
     printf("reconocio tk 8 \n");
@@ -476,10 +481,28 @@ validar falta de algun parametro obligatorio o parametro incorrecto en caso de p
 
 }//fin creacion disco
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////// REMOVER DISCO //////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void RemoverDisco(Lex Parametros[]){}
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////// PARTICIONAR DISCO //////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void ParticionarDisco(Lex Parametros[]){}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////// MONTAR DISCO //////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MontarDisco(Lex Parametros[]){}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////// DESMONTAR DISCO //////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void DesmontarDisco(Lex Parametros[]){}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////// METODO DE LIMPIEA /////////////////////////////////////////////////////////
+////////////////////////////////////////////////// METODO DE LIMPIEZA /////////////////////////////////////////////////////////
 
 void LimpiarChar(){
 int i=0;
@@ -500,12 +523,6 @@ int a=0;
 AT();
 AS(Lexemas);
 int i = 0;
-/*
-for(i;i<4;i+=1){
-printf("lexema: %s \n",Lexemas[i].texto);
-printf("token: %i \n",Lexemas[i].token);
-}
-*/
 
 return 0;
 
