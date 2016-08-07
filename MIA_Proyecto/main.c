@@ -46,6 +46,10 @@ return 11;
 return 12;
 }else if(strcasecmp(l,"+add::")==0){
 return 13;
+}else if(strcasecmp(l,"m")==0){
+return 19;
+}else if(strcasecmp(l,"k")==0){
+return 18;
 }else{
 return 0;
 }
@@ -401,9 +405,12 @@ int ND=0;
 int UD=0;
 //int para posicion en la tabla de tokens/lexemas
 int posP=1;
-
+//int para constantes de K y M
+int K =1024;
+int M =1048576;
+/////////////////////////////////////////////////
 while(posP<20){
-printf("esta en el while \n");
+//printf("esta en el while \n");
     if(Parametros[posP].token==0){
     break;
     }
@@ -411,55 +418,91 @@ printf("esta en el while \n");
 if(Parametros[posP].token==6){ //valida instruccion size
     if(SD==0){
     posP+=1;
+    if(Parametros[posP].token==14){
     strcpy(SizeDisco,Parametros[posP].texto);
     printf("El numero es %i\n",atoi(SizeDisco));
     posP+=1;
     SD=1;
     printf("reconocio tk 6 \n");
     }else{
+    printf("El valor ingresado no es correcto \n");
+    }
+    }else{
     printf("el tamanio ya fue definido anteriormente \n");
     }
-}else if(Parametros[posP].token==7){ //calida intruccion path
+}else if(Parametros[posP].token==7){ //valida intruccion path
     if(PD==0){
     posP+=1;
+    if(Parametros[posP].token==15){
     strcpy(PathDisco,Parametros[posP].texto);
     posP+=1;
     PD=1;
     printf("reconocio tk 7 \n");
     }else{
+    printf("El path es incorrecoto \n");
+    }
+    }else{
     printf("ya habia ingresado el path \n");
     }
-}else if(Parametros[posP].token==8){ //calida intruccion name
+}else if(Parametros[posP].token==8){ //valida intruccion name
     if(ND==0){
     posP+=1;
+    if(Parametros[posP].token==15){
     strcpy(NameDisco,Parametros[posP].texto);
-    if(strstr(NameDisco,".dsk")!=0){
-    printf("Si contiene la extension .dsk\n");
+        if(strstr(NameDisco,".dsk")!=0){
+        printf("Si contiene la extension .dsk\n");
+        posP+=1;
+        ND=1;
+        printf("reconocio tk 8 \n");
+        }else{
+        printf("No contiene la extension .dsk\n");
+        }
     }else{
-    printf("No contiene la extension .dsk\n");
+    printf("El nombre del disco es incorrecto \n");
     }
-    posP+=1;
-    ND=1;
-    printf("reconocio tk 8 \n");
     }else{
     printf("ya habia ingresado el nombre del disco \n");
     }
-}else if(Parametros[posP].token==9){ //calida intruccion unidad
+}else if(Parametros[posP].token==9){ //valida intruccion unidad
     if(UD==0){
     posP+=1;
+    if(Parametros[posP].token==19){
+    strcpy(UnitDisco,Parametros[posP].texto);
+    posP+=1;
+    UD=1;
+    printf("reconocio tk 9 \n");
+    }else if(Parametros[posP].token==18){
     strcpy(UnitDisco,Parametros[posP].texto);
     posP+=1;
     UD=1;
     printf("reconocio tk 9 \n");
     }else{
+    printf("La unidad no es valida \n");
+    break;
+    }
+    }else{
     printf("ya habia ingresado la unidid para el disco \n");
     }
 }else{
-    printf("fin del analisis \n");
+    printf("Parametros invalidos para instruccion mkdisk \n");
     break;
 }
 
 }
+if(SD==1 && PD==1 && ND==1){
+printf("parametros obligatorios correctos \n");
+}else{
+    if(SD==0){
+    printf("falta parametro size \n");
+    }
+    if(PD==0){
+    printf("falta parametro path \n");
+    }
+    if(ND==0){
+    printf("falta parametro name \n");
+    }
+}
+/*
 if(SD==1){
     if(PD==1){
         if(ND==1){
@@ -468,13 +511,30 @@ if(SD==1){
         printf("El nombre del disco es: %s \n",NameDisco);
         if(UD==1){
         printf("La unidad es: %s \n",UnitDisco);
+
+        FILE *archivo = fopen("/home/david/Escritorio/disco.dsk","w+b");
+        if(archivo){
+        printf("se creo \n");
+        char t[1024] = "\0";
+
+       /* fseek(archivo,0,SEEK_SET);
+        fwrite(t,sizeof(char),1024,archivo);
+        */
+  /*    //  fseek(archivo,0,SEEK_SET);
+      //  fwrite('\0',sizeof(char),1024,archivo);
+       // fseek(archivo,1024,SEEK_SET);
+       // fwrite('\0',sizeof(char),1,archivo);
+
+        }else{
+        printf("no se creo \n");
+        }
         }else{
         printf("La unidad quedara por defecto \n");
             }
         }
     }
 }
-
+*/
 /*
 validar falta de algun parametro obligatorio o parametro incorrecto en caso de path o extension
 */
@@ -484,7 +544,37 @@ validar falta de algun parametro obligatorio o parametro incorrecto en caso de p
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////// REMOVER DISCO //////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void RemoverDisco(Lex Parametros[]){}
+void RemoverDisco(Lex Parametros[]){
+char PathRMDisco[25];
+int PRMD=0;
+int posP=1;
+
+while(posP<20){
+
+    if(Parametros[posP].token==0){
+    break;
+    }
+
+    if(Parametros[posP].token==7){
+        posP+=1;
+        if(Parametros[posP].token==15){
+        strcpy(PathRMDisco,Parametros[posP].texto);
+        PRMD=1;
+        posP+=1;
+        printf("reconocio instruccion path y direccion correctamente \n");
+        }else{
+        printf("Parametro de path incorrecto \n");
+        break;
+        }
+
+    }else{
+    printf("Parametros incorrectos \n");
+    break;
+    }
+
+}
+
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////// PARTICIONAR DISCO //////////////////////////////////////////////////////////////
