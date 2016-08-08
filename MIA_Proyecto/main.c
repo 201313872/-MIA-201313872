@@ -4,10 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
+#include <sys/stat.h>
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////// ESTRUCTURA ////////////////////////////////////////////////////////////////
 typedef struct Lex{
-    char texto[25];
+    char texto[50];
     int token;
     int numeroID;
 }Lex;
@@ -61,10 +63,10 @@ return 0;
 /////////////////////////////////////////////////////ANALIZADORES///////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Lex Lexemas[20];
-char lexema[25];
+char lexema[50];
 int AT(){   // ANALIZADOR DE TEXTO
 /*VARIABLES*/
-char linea[100]; //almacena la linea
+char linea[128]; //almacena la linea
 int tokens[20]; //almacena tokens obtenidos
 char lexemaCL[25];
 char caracter; //almacena caracter temporal de la linea
@@ -108,9 +110,9 @@ while(bandera == 0/*pos <=99*/){
             caracter=linea[pos];
             estado = 6;
         }else if(caracter == '"'){ // son comillas?
-            lexema[posLex]=caracter;
+            //lexema[posLex]=caracter;
             pos+=1;
-            posLex+=1;
+            //posLex+=1;
             caracter=linea[pos];
             estado = 9;
         }else if(caracter == '\\'){
@@ -298,9 +300,9 @@ while(bandera == 0/*pos <=99*/){
             caracter = linea[pos];
             estado = 9;
         }else if(caracter == '"'){
-            lexema[posLex]=caracter;
+            //lexema[posLex]=caracter;
             pos+=1;
-            posLex+=1;
+            //posLex+=1;
             caracter = linea[pos];
             estado = 10;
         }else{
@@ -394,10 +396,12 @@ if(Tabla[0].token==100){
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void CrearDisco(Lex Parametros[]){
 //char para alamcenar valores de los parametros del disco a crear
-char SizeDisco[25];
-char PathDisco[25];
-char NameDisco[25];
-char UnitDisco[25];
+char SizeDisco[50];
+char PathDisco[50];
+char NameDisco[50];
+char UnitDisco[50];
+///////////////////////
+int TamDisco=0;
 //ints para validad que parametros han venido 0=NO 1=SI
 int SD=0;
 int PD=0;
@@ -408,6 +412,8 @@ int posP=1;
 //int para constantes de K y M
 int K =1024;
 int M =1048576;
+//int dimension
+int Dimension=0;
 /////////////////////////////////////////////////
 while(posP<20){
 //printf("esta en el while \n");
@@ -420,7 +426,9 @@ if(Parametros[posP].token==6){ //valida instruccion size
     posP+=1;
     if(Parametros[posP].token==14){
     strcpy(SizeDisco,Parametros[posP].texto);
+    Dimension=atoi(SizeDisco);
     printf("El numero es %i\n",atoi(SizeDisco));
+    printf("El numero2 es  %i\n",Dimension);
     posP+=1;
     SD=1;
     printf("reconocio tk 6 \n");
@@ -435,6 +443,7 @@ if(Parametros[posP].token==6){ //valida instruccion size
     posP+=1;
     if(Parametros[posP].token==15){
     strcpy(PathDisco,Parametros[posP].texto);
+    printf("path: %s \n",PathDisco);
     posP+=1;
     PD=1;
     printf("reconocio tk 7 \n");
@@ -490,7 +499,62 @@ if(Parametros[posP].token==6){ //valida instruccion size
 
 }
 if(SD==1 && PD==1 && ND==1){
+
 printf("parametros obligatorios correctos \n");
+//existeC = system("ls /home/david/Escritorio/Discos");
+//printf("el retorno es: %i \n", existeC);
+//system("mkdir /home/david/Escritorio/Discos ");
+//existeC = system("ls /home/david/Escritorio/Discos");
+//printf("el retorno es: %i \n", existeC);
+
+char ValPath[100];
+char instruccion[10]="mkdir ";
+strcat(instruccion,PathDisco);
+printf("concat: %s \n",instruccion);
+
+//strcpy(ValPath,instruccion);
+/////validacion path
+struct stat buffer;
+int ExisteCarpeta = 0;
+ExisteCarpeta = stat(PathDisco, &buffer);
+        if(ExisteCarpeta!=0){
+        printf("Se debera crear \n");
+        system(instruccion);
+        }else{
+        printf("Ya existe carpeta \n");
+        }
+/////////////////////
+        char PathCompleto[127];
+        strcpy(PathCompleto,PathDisco);
+        strcat(PathCompleto,NameDisco);
+        printf("ruta disco: %s \n",PathCompleto);
+FILE* arch = fopen(PathCompleto,"w+b");
+
+    if(arch){
+   printf("si se creo \n");
+    if(UD!=0){
+      if(strcasecmp(UnitDisco,"k")==0){
+        TamDisco = Dimension*K;
+      }else if(strcasecmp(UnitDisco,"m")==0){
+        TamDisco = Dimension*M;
+      }
+    }else{
+        TamDisco = Dimension*M;
+            }
+    printf("el tamonio del disco es: %i",TamDisco);
+    char T[TamDisco];
+    strcpy(T,"\0");
+    fseek(arch,0,SEEK_SET);
+    fwrite(&T,sizeof(char),TamDisco,arch);
+    fseek(arch,1,SEEK_SET);
+    char A = '\0';
+    fseek(arch,1,SEEK_SET);
+    fwrite(&A,sizeof(char),8,arch);
+
+    }else{
+    printf("no se creo \n");
+    }
+
 }else{
     if(SD==0){
     printf("falta parametro size \n");

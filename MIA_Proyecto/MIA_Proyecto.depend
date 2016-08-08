@@ -1,6 +1,8 @@
 # depslib dependency file v1.0
-1470551749 source:/home/david/Escritorio/MIA/-MIA-201313872/MIA_Proyecto/main.c
+1470635466 source:/home/david/Escritorio/MIA/-MIA-201313872/MIA_Proyecto/main.c
 	<stdio.h>
 	<stdlib.h>
 	<ctype.h>
+	<string.h>
+	<sys/stat.h>
 
