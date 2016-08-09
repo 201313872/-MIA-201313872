@@ -542,15 +542,9 @@ FILE* arch = fopen(PathCompleto,"w+b");
         TamDisco = Dimension*M;
             }
     printf("el tamonio del disco es: %i",TamDisco);
-    char T[TamDisco];
-    strcpy(T,"\0");
-    fseek(arch,0,SEEK_SET);
-    fwrite(&T,sizeof(char),TamDisco,arch);
-    fseek(arch,1,SEEK_SET);
     char A = '\0';
-    fseek(arch,1,SEEK_SET);
-    fwrite(&A,sizeof(char),8,arch);
-
+    fseek(arch,TamDisco,SEEK_SET);
+    fwrite(&A,sizeof(char),1,arch);
     }else{
     printf("no se creo \n");
     }
@@ -566,42 +560,7 @@ FILE* arch = fopen(PathCompleto,"w+b");
     printf("falta parametro name \n");
     }
 }
-/*
-if(SD==1){
-    if(PD==1){
-        if(ND==1){
-        printf("El tamanio del disco es: %s \n",SizeDisco);
-        printf("El path del disco es: %s \n",PathDisco);
-        printf("El nombre del disco es: %s \n",NameDisco);
-        if(UD==1){
-        printf("La unidad es: %s \n",UnitDisco);
 
-        FILE *archivo = fopen("/home/david/Escritorio/disco.dsk","w+b");
-        if(archivo){
-        printf("se creo \n");
-        char t[1024] = "\0";
-
-       /* fseek(archivo,0,SEEK_SET);
-        fwrite(t,sizeof(char),1024,archivo);
-        */
-  /*    //  fseek(archivo,0,SEEK_SET);
-      //  fwrite('\0',sizeof(char),1024,archivo);
-       // fseek(archivo,1024,SEEK_SET);
-       // fwrite('\0',sizeof(char),1,archivo);
-
-        }else{
-        printf("no se creo \n");
-        }
-        }else{
-        printf("La unidad quedara por defecto \n");
-            }
-        }
-    }
-}
-*/
-/*
-validar falta de algun parametro obligatorio o parametro incorrecto en caso de path o extension
-*/
 
 }//fin creacion disco
 
@@ -634,6 +593,24 @@ while(posP<20){
     }else{
     printf("Parametros incorrectos \n");
     break;
+    }
+
+    if(PRMD!=0){
+        printf("path del disco:  %s \n",PathRMDisco);
+        struct stat buffer2;
+        int ExisteDSK = 0;
+        ExisteDSK = stat(PathRMDisco, &buffer2);
+        if(ExisteDSK!=0){
+        printf("no esxiste el disco \n");
+        }else{
+        printf("si existe el disco \n");
+        char Instruccion2[10]="rm -i ";
+        strcat(Instruccion2,PathRMDisco);
+        printf("inst: %s \n",Instruccion2);
+        system(Instruccion2);
+        }
+    }else{
+    printf("no se puede ejecutar rmdisk \n");
     }
 
 }
