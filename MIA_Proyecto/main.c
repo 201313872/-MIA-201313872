@@ -7,13 +7,40 @@
 #include <string.h>
 #include <sys/stat.h>
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////// ESTRUCTURA ////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////// ESTRUCTURAS ////////////////////////////////////////////////////////////////
 typedef struct Lex{
     char texto[50];
     int token;
     int numeroID;
 }Lex;
 
+typedef struct Particion{
+    char part_status;
+    char part_type;
+    char part_fit;
+    int part_start;
+    int part_size;
+    char part_name[16];
+}Particion;
+
+typedef struct MBR{
+    int mbr_tamano;
+    char mbr_fecha_creacion[32];
+    int mbr_disk_signature;
+    Particion mbr_partition_1;
+    Particion mbr_partition_2;
+    Particion mbr_partition_3;
+    Particion mbr_partition_4;
+}MBR;
+
+typedef struct EBR{
+    char part_status;
+    char part_fit;
+    int part_start;
+    int part_size;
+    int part_next;
+    char part_name[16];
+}EBR;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////FUNCION TOKEN //////////////////////////////////////////////////////////////
@@ -52,8 +79,10 @@ return 13;
 return 19;
 }else if(strcasecmp(l,"k")==0){
 return 18;
+}else if(strcasecmp(l,"b")==0){
+return 20;
 }else{
-return 0;
+return 872;
 }
 
 
@@ -189,6 +218,22 @@ while(bandera == 0/*pos <=99*/){
             posLex+=1;
             caracter = linea[pos];
             estado = 4;
+        }else if(isdigit(caracter)){
+            Lexemas[posTL].token=21; //signo menos
+            strcpy(Lexemas[posTL].texto,lexema);
+            posTL+=1;
+            posLex=0;
+            estado=0;
+            LimpiarChar();
+            printf("reconocio signo menos \n");
+        }else if(caracter=' '){
+            Lexemas[posTL].token=21; //signo menos
+            strcpy(Lexemas[posTL].texto,lexema);
+            posTL+=1;
+            posLex=0;
+            estado=0;
+            LimpiarChar();
+            printf("reconocio signo menos \n");
         }else{
             estado_anterior = 3;
             estado = 15;
@@ -545,6 +590,7 @@ FILE* arch = fopen(PathCompleto,"w+b");
     char A = '\0';
     fseek(arch,TamDisco,SEEK_SET);
     fwrite(&A,sizeof(char),1,arch);
+    fclose(arch);
     }else{
     printf("no se creo \n");
     }
@@ -620,7 +666,196 @@ while(posP<20){
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////// PARTICIONAR DISCO //////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void ParticionarDisco(Lex Parametros[]){}
+void ParticionarDisco(Lex Parametros[]){
+//almacenamiento datos de particion;
+int SizeParticion; //>0
+char UnitParticion='k'; // B,K,M <K>
+char PathParticion[100];
+char TypeParticion='p'; // P,E,L <P>
+char NameParticion[100];
+char FitParticion[100]="wf"; //BF,FF,WF <WF>
+char DeleteParticion[100]; //Fast,Full
+int AddParticion;
+//banderas de instruccion
+int SP=0;
+int UP=0;
+int PP=0;
+int TP=0;
+int NP=0;
+int FP=0;
+int DP=0;
+int AP=0;
+int AMP=0; //valida si es numero negativo
+/////////////////////////
+int posP=1;
+
+while(posP<20){
+
+    if(Parametros[posP].token==0){
+    break;
+    }
+
+    if(Parametros[posP].token==6){ //size
+        posP+=1;
+        if(SP==0){
+            if(Parametros[posP].token==14){
+            strcpy(SizeParticion,Parametros[posP].texto);
+            SP=1;
+            posP+=1;
+            }else{
+            printf("tamanio incorrecto \n");
+            }
+        }else{
+            printf("instruccion path definida previamente \n");
+            break;
+        }
+    }else if(Parametros[posP].token==7){ //path
+        posP+=1;
+        if(PP==0){
+            if(Parametros[posP].token==15){
+            strcpy(PathParticion,Parametros[posP].texto);
+            PP=1;
+            posP+=1;
+            }else{
+            printf("path incorrecto \n");
+            }
+        }else{
+            printf("instruccion path definida previamente \n");
+            break;
+        }
+    }else if(Parametros[posP].token==8){ //name
+        posP+=1;
+        if(NP==0){
+            if(Parametros[posP].token==15){
+            strcpy(NameParticion,Parametros[posP].texto);
+            NP=1;
+            posP+=1;
+            }else{
+            printf("nombre incorrecto \n");
+            }
+        }else{
+            printf("instruccion definida previamente \n");
+            break;
+        }
+    }else if(Parametros[posP].token==9){ //unit
+        posP+=1;
+        if(UP==0){
+            if(Parametros[posP].token==20){
+            strcpy(UnitParticion,Parametros[posP].texto);
+            UP=1;
+            posP+=1;
+            }else if(Parametros[posP].token==19){
+            strcpy(UnitParticion,Parametros[posP].texto);
+            UP=1;
+            posP+=1;
+            }else if(Parametros[posP].token==18){
+            strcpy(UnitParticion,Parametros[posP].texto);
+            UP=1;
+            posP+=1;
+            }else{
+            printf("unidad incorrecta \n");
+            }
+        }else{
+            printf("instruccion definida previamente \n");
+            break;
+        }
+    }else if(Parametros[posP].token==10){ //type
+        posP+=1;
+        if(TP==0){
+            if(Parametros[posP].token==872){
+            if(strcasecmp(Parametros[posP].texto,"p")==0){
+            strcpy(SizeParticion,Parametros[posP].texto);
+            TP=1;
+            posP+=1;
+            }else if(strcasecmp(Parametros[posP].texto,"e")==0){
+            strcpy(SizeParticion,Parametros[posP].texto);
+            TP=1;
+            posP+=1;
+            }else if(strcasecmp(Parametros[posP].texto,"l")==0){
+            strcpy(SizeParticion,Parametros[posP].texto);
+            TP=1;
+            posP+=1;
+            }else{
+            printf("tipo de particion incorrecta \n");
+            }
+            }else{
+            printf("tipo de particion incorrecta \n");
+            }
+        }else{
+            printf("instruccion tipo definida previamente \n");
+            break;
+        }
+    }else if(Parametros[posP].token==11){ //fit
+        posP+=1;
+        if(FP==0){
+            if(Parametros[posP].token==872){
+            if(strcasecmp(Parametros[posP].texto,"bf")==0){
+            strcpy(FitParticion,Parametros[posP].texto);
+            FP=1;
+            posP+=1;
+            }else if(strcasecmp(Parametros[posP].texto,"ff")==0){
+            strcpy(FitParticion,Parametros[posP].texto);
+            FP=1;
+            posP+=1;
+            }else if(strcasecmp(Parametros[posP].texto,"wf")==0){
+            strcpy(FitParticion,Parametros[posP].texto);
+            FP=1;
+            posP+=1;
+            }else{
+            printf("ajuste de particion incorrecta \n");
+            }
+            }else{
+            printf("ajuste de particion incorrecta \n");
+            }
+        }else{
+            printf("instruccion ajuste definida previamente \n");
+            break;
+        }
+    }else if(Parametros[posP].token==12){ //delete
+        posP+=1;
+        if(DP==0){
+            if(Parametros[posP].token==15){
+            strcpy(NameParticion,Parametros[posP].texto);
+            DP=1;
+            posP+=1;
+            }else{
+            printf("nombre incorrecto \n");
+            }
+        }else{
+            printf("instruccion definida previamente \n");
+            break;
+        }
+    }else if(Parametros[posP].token==13){ //add
+     posP+=1;
+     if(AP==0){
+     if(Parametros[posP].token==21){
+        posP+=1;
+        if(Parametros[posP].token==14){
+        AddParticion =atoi(Parametros[posP].texto);
+        AP=1;
+        AMP=1;
+        posP+=1;
+        }else{
+        printf("valor add incorrecto \n");
+        }
+    }else if(Parametros[posP].token==14){
+        AddParticion =atoi(Parametros[posP].texto);
+        AP=1;
+        posP+=1;
+     }else{
+        printf("parametro de add incorrecto \n");
+     }
+     }else{
+     printf("instruccion definida previamente \n");
+     }
+    }else{
+     printf("parametro invalido@@@@ \n");
+     break;
+    }
+
+}
+
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////// MONTAR DISCO //////////////////////////////////////////////////////////////
