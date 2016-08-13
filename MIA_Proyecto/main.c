@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <time.h>
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////// ESTRUCTURAS ////////////////////////////////////////////////////////////////
 typedef struct Lex{
@@ -41,6 +42,24 @@ typedef struct EBR{
     int part_next;
     char part_name[16];
 }EBR;
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////// NUMERO RANDOM //////////////////////////////////////////////////////////
+
+int NumeroRandom(){
+	return 1 + rand()% ((1000+1)-1);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////  BUSCAR ESPACIO ///////////////////////////////////////////////////////////
+
+int BuscarEspacio(int i1,int f1){
+
+
+}
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////FUNCION TOKEN //////////////////////////////////////////////////////////////
@@ -93,6 +112,19 @@ return 872;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Lex Lexemas[20];
 char lexema[50];
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////// METODO DE LIMPIEZA /////////////////////////////////////////////////////////
+
+void LimpiarChar(){
+int i=0;
+for(i;i<25;i+=1){
+if(lexema[i]!='\0'){
+ lexema[i]='\0';
+}
+}
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int AT(){   // ANALIZADOR DE TEXTO
 /*VARIABLES*/
 char linea[128]; //almacena la linea
@@ -148,7 +180,7 @@ while(bandera == 0/*pos <=99*/){
             char nextL[50];
             fgets(nextL,50,stdin);
             strcat(linea,nextL);
-            printf("nueva cadena: %s", linea);
+            //printf("nueva cadena: %s", linea);
         }else if(caracter == '#'){
             lexema[posLex]=caracter;
             pos+=1;
@@ -176,7 +208,7 @@ while(bandera == 0/*pos <=99*/){
             caracter = linea[pos];
             estado = 1;
         }else{
-            printf("RECONOCIO PALABRA \n");
+            //printf("RECONOCIO PALABRA \n");
             strcpy(Lexemas[posTL].texto,lexema);
             Lexemas[posTL].token=DetToken(lexema);
             posTL+=1;
@@ -195,7 +227,7 @@ while(bandera == 0/*pos <=99*/){
             caracter = linea[pos];
             estado = 2;
         }else{
-            printf("RECONOCIO NUMERO \n");
+            //printf("RECONOCIO NUMERO \n");
             strcpy(Lexemas[posTL].texto,lexema);
             Lexemas[posTL].token=14;
             posTL+=1;
@@ -225,7 +257,7 @@ while(bandera == 0/*pos <=99*/){
             posLex=0;
             estado=0;
             LimpiarChar();
-            printf("reconocio signo menos \n");
+            //printf("reconocio signo menos \n");
         }else if(caracter=' '){
             Lexemas[posTL].token=21; //signo menos
             strcpy(Lexemas[posTL].texto,lexema);
@@ -233,7 +265,7 @@ while(bandera == 0/*pos <=99*/){
             posLex=0;
             estado=0;
             LimpiarChar();
-            printf("reconocio signo menos \n");
+            //printf("reconocio signo menos \n");
         }else{
             estado_anterior = 3;
             estado = 15;
@@ -286,7 +318,7 @@ while(bandera == 0/*pos <=99*/){
         break; // Fin reconocimiento segundo :
 
         case 5: // Estado 5 cierre parametro obligatorio
-            printf("RECONOCIO PARAMETRO OBLIGATORIO \n");
+            //printf("RECONOCIO PARAMETRO OBLIGATORIO \n");
             strcpy(Lexemas[posTL].texto,lexema);
             Lexemas[posTL].token=DetToken(lexema);
             posTL+=1;
@@ -328,7 +360,7 @@ while(bandera == 0/*pos <=99*/){
         break; // fin de reconocimiento : parametro Opcional
 
         case 8: // Estado 8 parametros Opcionales
-            printf("RECONOCIO PARAMETRO OPCIONAL \n");
+            //printf("RECONOCIO PARAMETRO OPCIONAL \n");
             strcpy(Lexemas[posTL].texto,lexema);
             Lexemas[posTL].token=DetToken(lexema);
             posTL+=1;
@@ -338,7 +370,7 @@ while(bandera == 0/*pos <=99*/){
         break;
 
         case 9: // Estado 9 reconocimiento cadenas ""
-        if(isalpha(caracter) || isdigit(caracter) || caracter == '/' || caracter == '.' || caracter == '_' || caracter == '-'){
+        if(isalpha(caracter) || isdigit(caracter) || caracter == '/' || caracter == '.' || caracter == '_' || caracter == '-' || caracter ==' '){
             lexema[posLex]=caracter;
             posLex+=1;
             pos+=1;
@@ -357,7 +389,7 @@ while(bandera == 0/*pos <=99*/){
         break; // fin reconocimiento cadena
 
         case 10: // Estado 10 fin cadena
-            printf("RECONOCIO CADENA \n");
+            //printf("RECONOCIO CADENA \n");
             strcpy(Lexemas[posTL].texto,lexema);
             Lexemas[posTL].token=15;
             posTL+=1;
@@ -385,7 +417,7 @@ while(bandera == 0/*pos <=99*/){
         case 13: // Estado 13 para Comentarios
             /* Se puede agregar metodo de ejecucion de parametros*/
             bandera = 1;
-            printf("reconocio comentario \n");
+            //printf("reconocio comentario \n");
             strcpy(Lexemas[posTL].texto,lexema);
             Lexemas[posTL].token=16;
             posTL+=1;
@@ -407,7 +439,7 @@ while(bandera == 0/*pos <=99*/){
             break;
 
         case 15: //Para detectar posibles errores
-        printf("Ocurrio un error en el estado %i \n",estado_anterior);
+        //printf("Ocurrio un error en el estado %i \n",estado_anterior);
         bandera = 1;
         system("pause");
         break;
@@ -472,31 +504,31 @@ if(Parametros[posP].token==6){ //valida instruccion size
     if(Parametros[posP].token==14){
     strcpy(SizeDisco,Parametros[posP].texto);
     Dimension=atoi(SizeDisco);
-    printf("El numero es %i\n",atoi(SizeDisco));
-    printf("El numero2 es  %i\n",Dimension);
+    //printf("El numero es %i\n",atoi(SizeDisco));
+    //printf("El numero2 es  %i\n",Dimension);
     posP+=1;
     SD=1;
-    printf("reconocio tk 6 \n");
+    //printf("reconocio tk 6 \n");
     }else{
-    printf("El valor ingresado no es correcto \n");
+    printf("ER:El valor ingresado no es correcto \n");
     }
     }else{
-    printf("el tamanio ya fue definido anteriormente \n");
+    printf("ER:l tamanio ya fue definido anteriormente \n");
     }
 }else if(Parametros[posP].token==7){ //valida intruccion path
     if(PD==0){
     posP+=1;
     if(Parametros[posP].token==15){
     strcpy(PathDisco,Parametros[posP].texto);
-    printf("path: %s \n",PathDisco);
+    //printf("path: %s \n",PathDisco);
     posP+=1;
     PD=1;
-    printf("reconocio tk 7 \n");
+    //printf("reconocio tk 7 \n");
     }else{
-    printf("El path es incorrecoto \n");
+    printf("ER: El path es incorrecoto \n");
     }
     }else{
-    printf("ya habia ingresado el path \n");
+    printf("ER:Ya habia ingresado el path \n");
     }
 }else if(Parametros[posP].token==8){ //valida intruccion name
     if(ND==0){
@@ -504,18 +536,18 @@ if(Parametros[posP].token==6){ //valida instruccion size
     if(Parametros[posP].token==15){
     strcpy(NameDisco,Parametros[posP].texto);
         if(strstr(NameDisco,".dsk")!=0){
-        printf("Si contiene la extension .dsk\n");
+        //printf("Si contiene la extension .dsk\n");
         posP+=1;
         ND=1;
-        printf("reconocio tk 8 \n");
+        //printf("reconocio tk 8 \n");
         }else{
-        printf("No contiene la extension .dsk\n");
+        printf("ER: El nombre no contiene la extension .dsk\n");
         }
     }else{
-    printf("El nombre del disco es incorrecto \n");
+    printf("ER: El nombre del disco es incorrecto \n");
     }
     }else{
-    printf("ya habia ingresado el nombre del disco \n");
+    printf("ER: ya habia ingresado el nombre del disco \n");
     }
 }else if(Parametros[posP].token==9){ //valida intruccion unidad
     if(UD==0){
@@ -524,28 +556,28 @@ if(Parametros[posP].token==6){ //valida instruccion size
     strcpy(UnitDisco,Parametros[posP].texto);
     posP+=1;
     UD=1;
-    printf("reconocio tk 9 \n");
+    //printf("reconocio tk 9 \n");
     }else if(Parametros[posP].token==18){
     strcpy(UnitDisco,Parametros[posP].texto);
     posP+=1;
     UD=1;
-    printf("reconocio tk 9 \n");
+    //printf("reconocio tk 9 \n");
     }else{
-    printf("La unidad no es valida \n");
+    printf("ER: La unidad no es valida \n");
     break;
     }
     }else{
-    printf("ya habia ingresado la unidid para el disco \n");
+    printf("ER: Ya habia ingresado la unidid para el disco \n");
     }
 }else{
-    printf("Parametros invalidos para instruccion mkdisk \n");
+    printf("ER: Parametros invalidos para instruccion mkdisk \n");
     break;
 }
 
 }
 if(SD==1 && PD==1 && ND==1){
 
-printf("parametros obligatorios correctos \n");
+//printf("parametros obligatorios correctos \n");
 //existeC = system("ls /home/david/Escritorio/Discos");
 //printf("el retorno es: %i \n", existeC);
 //system("mkdir /home/david/Escritorio/Discos ");
@@ -555,7 +587,7 @@ printf("parametros obligatorios correctos \n");
 char ValPath[100];
 char instruccion[10]="mkdir ";
 strcat(instruccion,PathDisco);
-printf("concat: %s \n",instruccion);
+//printf("concat: %s \n",instruccion);
 
 //strcpy(ValPath,instruccion);
 /////validacion path
@@ -563,20 +595,20 @@ struct stat buffer;
 int ExisteCarpeta = 0;
 ExisteCarpeta = stat(PathDisco, &buffer);
         if(ExisteCarpeta!=0){
-        printf("Se debera crear \n");
+        //printf("Se debera crear \n");
         system(instruccion);
         }else{
-        printf("Ya existe carpeta \n");
+        //printf("Ya existe carpeta \n");
         }
 /////////////////////
         char PathCompleto[127];
         strcpy(PathCompleto,PathDisco);
         strcat(PathCompleto,NameDisco);
-        printf("ruta disco: %s \n",PathCompleto);
+        //printf("ruta disco: %s \n",PathCompleto);
 FILE* arch = fopen(PathCompleto,"w+b");
 
     if(arch){
-   printf("si se creo \n");
+   //printf("si se creo \n");
     if(UD!=0){
       if(strcasecmp(UnitDisco,"k")==0){
         TamDisco = Dimension*K;
@@ -586,24 +618,59 @@ FILE* arch = fopen(PathCompleto,"w+b");
     }else{
         TamDisco = Dimension*M;
             }
-    printf("el tamonio del disco es: %i",TamDisco);
+    //printf("el tamonio del disco es: %i \n",TamDisco);
     char A = '\0';
+    MBR MBRD;
+    MBRD.mbr_disk_signature=NumeroRandom();
+    MBRD.mbr_tamano=TamDisco;
+    ////particiones/////
+    Particion P1;
+    Particion P2;
+    Particion P3;
+    Particion P4;
+    P1.part_status='1';
+    P2.part_status='1';
+    P3.part_status='1';
+    P4.part_status='0';
+    P1.part_start=1070;
+    P2.part_start=500;
+    P3.part_start=2530;
+    P4.part_start=1;
+    P1.part_size=1000;
+    P2.part_size=500;
+    P3.part_size=1000;
+    P4.part_size=0;
+    MBRD.mbr_partition_1=P1;
+    MBRD.mbr_partition_2=P2;
+    MBRD.mbr_partition_3=P3;
+    MBRD.mbr_partition_4=P4;
+    /////cap. fecha y hora //////
+  time_t t;
+  struct tm *tm;
+  char fechayhora[100];
+  t=time(NULL);
+  tm=localtime(&t);
+  strftime(fechayhora, 100, "%d/%m/%y %H:%M:%S", tm);
+    /////////////////////////////
+    strcpy(MBRD.mbr_fecha_creacion,fechayhora);
+    fseek(arch,0,SEEK_SET);
+    fwrite(&MBRD,sizeof(MBR),1,arch);
     fseek(arch,TamDisco,SEEK_SET);
     fwrite(&A,sizeof(char),1,arch);
     fclose(arch);
+    printf("Creo --> Disco: %s Size: %i Path: %s \n",NameDisco,TamDisco,PathDisco);
     }else{
-    printf("no se creo \n");
+    printf("ER: No se pudo crear el Disco \n");
     }
-
 }else{
     if(SD==0){
-    printf("falta parametro size \n");
+    printf("ER: falta parametro size \n");
     }
     if(PD==0){
-    printf("falta parametro path \n");
+    printf("ER: falta parametro path \n");
     }
     if(ND==0){
-    printf("falta parametro name \n");
+    printf("ER: falta parametro name \n");
     }
 }
 
@@ -630,7 +697,7 @@ while(posP<20){
         strcpy(PathRMDisco,Parametros[posP].texto);
         PRMD=1;
         posP+=1;
-        printf("reconocio instruccion path y direccion correctamente \n");
+        //printf("reconocio instruccion path y direccion correctamente \n");
         }else{
         printf("Parametro de path incorrecto \n");
         break;
@@ -642,26 +709,140 @@ while(posP<20){
     }
 
     if(PRMD!=0){
-        printf("path del disco:  %s \n",PathRMDisco);
+        //printf("path del disco:  %s \n",PathRMDisco);
         struct stat buffer2;
         int ExisteDSK = 0;
         ExisteDSK = stat(PathRMDisco, &buffer2);
         if(ExisteDSK!=0){
-        printf("no esxiste el disco \n");
+        printf("ER: No esxiste el disco \n");
         }else{
-        printf("si existe el disco \n");
+        //printf("si existe el disco \n");
         char Instruccion2[10]="rm -i ";
         strcat(Instruccion2,PathRMDisco);
-        printf("inst: %s \n",Instruccion2);
+        //printf("inst: %s \n",Instruccion2);
         system(Instruccion2);
         }
     }else{
-    printf("no se puede ejecutar rmdisk \n");
+    printf("ER: no se puede ejecutar rmdisk \n");
     }
 
 }
 
+
+
+
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////RETORNAR INICIO ///////////////////////////////////////////////////////////////
+
+
+int EsEntre(int n, int i,int f){
+    if(n >= i && n <= f){
+    return 1;
+    }else{
+    return 0;
+    }
+}
+
+
+
+
+int BuscarInicio(int TamDsk,int Tam, int iA,int fA, int iB,int fB,int iC, int fC){
+int B1=0;
+int B2=0;
+int B3=0;
+int B4=0;
+int M1=0;
+int M2=0;
+int M3=0;
+int M4=0;
+
+int BDisp=0;
+int Bpos=153;
+int PosInicial=153;
+      if(iA != 0){B1=1;}if(iB != 0){B2=1;}if(iC != 0){B3=1;}
+
+
+      while(BDisp != Tam){
+
+        if(Bpos > TamDsk){
+        return 0;
+        }
+
+            if(B1==1 && B2==1 && B3==1){
+
+                if(EsEntre(Bpos,iA,fA)==0){
+
+                    if(EsEntre(Bpos,iB,fB)==0){
+
+                        if(EsEntre(Bpos,iC,fC)==0){
+                         BDisp+=1;
+                         Bpos+=1;
+                        }else{
+                        PosInicial=fC+1;
+                        Bpos=fC+1;
+                        }
+
+                    }else{
+                    PosInicial=fB+1;
+                    Bpos=fB+1;
+                    }
+
+                }else{
+                PosInicial=fA+1;
+                Bpos=fA+1;
+                }
+
+      }else if(B1==1 && B2==1 && B3==0){
+
+      }else if(B1==1 && B2==0 && B3==1){
+
+      }else if(B1==1 && B2==0 && B3==0){
+
+      }else if(B1==0 && B2==1 && B3==1){
+
+      }else if(B1==0 && B2==1 && B3==0){
+
+      }else if(B1==0 && B2==0 && B3==1){
+
+      }
+
+
+      }
+
+
+}
+
+void OrdenarInicios(int inicios[], int fines[]){
+    int Temp1;
+    int Temp2;
+    int i=0;
+    int j=0;
+
+    for(i;i<4;i++){
+
+        for(j;j<3;j++){
+
+            if(inicios[j]>inicios[j+1]){
+                Temp1 =inicios[j];
+                Temp2 =fines[j];
+                inicios[j]=inicios[j+1];
+                fines[j]=fines[j+1];
+                inicios[j+1]=Temp1;
+                fines[j+1]=Temp2;
+            }
+        }
+
+    }
+    int c=0;
+    for(c;c<4;c++){
+    printf("I: %i  F: %i \n",inicios[c],fines[c]);
+
+    }
+
+
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////// PARTICIONAR DISCO //////////////////////////////////////////////////////////////
@@ -673,7 +854,7 @@ char UnitParticion='k'; // B,K,M <K>
 char PathParticion[100];
 char TypeParticion='p'; // P,E,L <P>
 char NameParticion[100];
-char FitParticion[100]="wf"; //BF,FF,WF <WF>
+char FitParticion='w'; //BF,FF,WF <WF>
 char DeleteParticion[100]; //Fast,Full
 int AddParticion;
 //banderas de instruccion
@@ -688,6 +869,9 @@ int AP=0;
 int AMP=0; //valida si es numero negativo
 /////////////////////////
 int posP=1;
+/////// Constantes /////////////////
+int K=1024;
+int M=1048576;
 
 while(posP<20){
 
@@ -699,9 +883,13 @@ while(posP<20){
         posP+=1;
         if(SP==0){
             if(Parametros[posP].token==14){
-            strcpy(SizeParticion,Parametros[posP].texto);
+            if(atoi(Parametros[posP].texto)>0){
+            SizeParticion=atoi(Parametros[posP].texto);
             SP=1;
             posP+=1;
+            }else{
+            printf("el tamano debe ser mayor a 0 \n");
+            }
             }else{
             printf("tamanio incorrecto \n");
             }
@@ -741,15 +929,17 @@ while(posP<20){
         posP+=1;
         if(UP==0){
             if(Parametros[posP].token==20){
-            strcpy(UnitParticion,Parametros[posP].texto);
+            UnitParticion='b';
             UP=1;
             posP+=1;
             }else if(Parametros[posP].token==19){
-            strcpy(UnitParticion,Parametros[posP].texto);
+            UnitParticion='m';
+            SizeParticion=SizeParticion*M;
             UP=1;
             posP+=1;
             }else if(Parametros[posP].token==18){
-            strcpy(UnitParticion,Parametros[posP].texto);
+            UnitParticion='k';
+            SizeParticion=SizeParticion*K;
             UP=1;
             posP+=1;
             }else{
@@ -764,15 +954,15 @@ while(posP<20){
         if(TP==0){
             if(Parametros[posP].token==872){
             if(strcasecmp(Parametros[posP].texto,"p")==0){
-            strcpy(SizeParticion,Parametros[posP].texto);
+            TypeParticion='p';
             TP=1;
             posP+=1;
             }else if(strcasecmp(Parametros[posP].texto,"e")==0){
-            strcpy(SizeParticion,Parametros[posP].texto);
+            TypeParticion='e';
             TP=1;
             posP+=1;
             }else if(strcasecmp(Parametros[posP].texto,"l")==0){
-            strcpy(SizeParticion,Parametros[posP].texto);
+            TypeParticion='l';
             TP=1;
             posP+=1;
             }else{
@@ -790,15 +980,18 @@ while(posP<20){
         if(FP==0){
             if(Parametros[posP].token==872){
             if(strcasecmp(Parametros[posP].texto,"bf")==0){
-            strcpy(FitParticion,Parametros[posP].texto);
+            //strcpy(FitParticion,Parametros[posP].texto);
+            FitParticion='b';
             FP=1;
             posP+=1;
             }else if(strcasecmp(Parametros[posP].texto,"ff")==0){
-            strcpy(FitParticion,Parametros[posP].texto);
+            //strcpy(FitParticion,Parametros[posP].texto);
+            FitParticion='f';
             FP=1;
             posP+=1;
             }else if(strcasecmp(Parametros[posP].texto,"wf")==0){
-            strcpy(FitParticion,Parametros[posP].texto);
+            //strcpy(FitParticion,Parametros[posP].texto);
+            FitParticion='w';
             FP=1;
             posP+=1;
             }else{
@@ -815,9 +1008,18 @@ while(posP<20){
         posP+=1;
         if(DP==0){
             if(Parametros[posP].token==15){
-            strcpy(NameParticion,Parametros[posP].texto);
+            if(strcasecmp(Parametros[posP].texto,"fast")==0){
+            strcpy(DeleteParticion,Parametros[posP].texto);
             DP=1;
             posP+=1;
+            }else if(strcasecmp(Parametros[posP].texto,"full")==0){
+            strcpy(DeleteParticion,Parametros[posP].texto);
+            DP=1;
+            posP+=1;
+            }else{
+            printf("tipo de eliminacion incorrecta \n");
+            }
+
             }else{
             printf("nombre incorrecto \n");
             }
@@ -855,6 +1057,148 @@ while(posP<20){
 
 }
 
+    //validacion de existencia
+
+        struct stat buffer3;
+        int ExisteD = 0;
+        printf("%s \n",PathParticion);
+        ExisteD = stat(PathParticion, &buffer3);
+        if(ExisteD!=0){
+        printf("ER: No esxiste el disco \n");
+        }else{
+        //Codico de Acciones
+
+          if(SP!=0 && PP!=0 && NP!=0){
+    printf("creara particion \n");
+
+    FILE* archivo = fopen("/home/david/Escritorio/Ds/D1.dsk","r+b");
+    if(archivo){
+    MBR MBRTemp;
+    fseek(archivo,0,SEEK_SET);
+    fread(&MBRTemp,sizeof(MBR),1,archivo);
+    //fclose(archivo);
+    //////
+    printf("tamano: %i \n",MBRTemp.mbr_tamano);
+    printf("signature: %i \n",MBRTemp.mbr_disk_signature);
+    printf("fecha: %s \n",MBRTemp.mbr_fecha_creacion);
+    printf("mbr p2 stat: %c \n",MBRTemp.mbr_partition_2.part_status);
+    /////
+
+    ////pasar el tamanio a k
+    if(UP==0){
+    int tamTemp;
+    tamTemp=SizeParticion*K;
+    SizeParticion=tamTemp;
+    printf("size cob : %i \n",SizeParticion);
+    }
+    printf("aqui 1 \n");
+    //Inicio-Fin
+    int I1=0;
+    int F1=0;
+    int I2=0;
+    int F2=0;
+    int I3=0;
+    int F3=0;
+    int I4=0;
+    int F4=0;
+    //obtener Inicios y Fines
+    if(MBRTemp.mbr_partition_1.part_status=='1'){
+     I1=MBRTemp.mbr_partition_1.part_start;
+     F1=MBRTemp.mbr_partition_1.part_start+MBRTemp.mbr_partition_1.part_size;
+    }
+    if(MBRTemp.mbr_partition_2.part_status=='1'){
+     I2=MBRTemp.mbr_partition_2.part_start;
+     F2=MBRTemp.mbr_partition_2.part_start+MBRTemp.mbr_partition_2.part_size;
+    }
+    if(MBRTemp.mbr_partition_3.part_status=='1'){
+     I3=MBRTemp.mbr_partition_3.part_start;
+     F3=MBRTemp.mbr_partition_3.part_start+MBRTemp.mbr_partition_3.part_size;
+    }
+    if(MBRTemp.mbr_partition_4.part_status=='1'){
+     I4=MBRTemp.mbr_partition_4.part_start;
+     F4=MBRTemp.mbr_partition_4.part_start+MBRTemp.mbr_partition_4.part_size;
+    }
+    ///////////////////////////////////
+
+    printf("aqui 2\n");
+
+    if(TypeParticion=='p'){
+    printf("aqui 2.5 \n");
+    int TamEx;
+    TamEx=sizeof(MBRTemp);
+    printf("tam mbr %i \n",TamEx);
+    if(SizeParticion <= (MBRTemp.mbr_tamano - TamEx)){
+
+    //ninguna particion
+    if(MBRTemp.mbr_partition_1.part_status=='1' && MBRTemp.mbr_partition_2.part_status=='1' && MBRTemp.mbr_partition_3.part_status=='1' && MBRTemp.mbr_partition_4.part_status=='1'){
+        printf("ER: Maximo de particiones primarias permitidas \n");
+    }else if(MBRTemp.mbr_partition_1.part_status=='0' && MBRTemp.mbr_partition_2.part_status=='0' && MBRTemp.mbr_partition_3.part_status=='0' && MBRTemp.mbr_partition_4.part_status=='0'){
+        MBRTemp.mbr_partition_1.part_fit=FitParticion;
+        strcpy(MBRTemp.mbr_partition_1.part_name,NameParticion);
+        MBRTemp.mbr_partition_1.part_size=SizeParticion;
+        MBRTemp.mbr_partition_1.part_start=153;
+        MBRTemp.mbr_partition_1.part_status='1';
+        MBRTemp.mbr_partition_1.part_type='p';
+        fseek(archivo,0,SEEK_SET);
+        fwrite(&MBRTemp,sizeof(MBR),1,archivo);
+        fclose(archivo);
+    }else{
+        int I[3]={I1,I2,I3,7000};
+        int F[3]={F1,F2,F3,8000};
+        OrdenarInicios(I,F);
+
+    }
+
+    }else{
+    printf("Espacio insuficiente para realizar particion \n");
+    }
+
+      //////
+    }else if(TypeParticion=='e'){
+
+    }else if(TypeParticion=='l'){
+
+    }
+
+
+
+
+    }else{
+    printf("no se pudo modificar disco \n");
+    }
+
+    }else if(DP!=0 && PP!=0 && NP!=00){
+    printf("eliminara particion \n");
+    }else if(AP!=00 && UP!=0){
+    printf("modificara particion \n");
+    }else{
+    printf("error en parametros  ejc\n");
+    }
+
+
+        ///////////////////
+        }
+
+/*
+    FILE* archivo2 = fopen("/home/david/Escritorio/Ds/D1.dsk","r+b");
+    if(archivo2){
+    printf("si se abrio \n");
+    MBR pruebaMBR;
+    fseek(archivo2,0,SEEK_SET);
+    fread(&pruebaMBR,sizeof(MBR),1,archivo2);
+    fclose(archivo2);
+    printf("fit P1: %c \n",pruebaMBR.mbr_partition_1.part_fit);
+    printf("nombre P1: %s \n",pruebaMBR.mbr_partition_1.part_name);
+    printf("size P1: %i \n",pruebaMBR.mbr_partition_1.part_size);
+    printf("start P1: %i \n",pruebaMBR.mbr_partition_1.part_start);
+    printf("status P1: %c \n",pruebaMBR.mbr_partition_1.part_status);
+    printf("type P1: %c \n",pruebaMBR.mbr_partition_1.part_type);
+
+    }else{
+    printf("no se abrio \n");
+    }
+*/
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -867,17 +1211,6 @@ void MontarDisco(Lex Parametros[]){}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void DesmontarDisco(Lex Parametros[]){}
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////// METODO DE LIMPIEZA /////////////////////////////////////////////////////////
-
-void LimpiarChar(){
-int i=0;
-for(i;i<25;i+=1)
-if(lexema[i]!='\0'){
- lexema[i]='\0';
-}
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////MAIN//////////////////////////////////////////////////////////////////////
@@ -885,9 +1218,10 @@ if(lexema[i]!='\0'){
 int main()
 {
 int a=0;
-
+while(a==0){
 AT();
 AS(Lexemas);
+}
 int i = 0;
 
 return 0;
